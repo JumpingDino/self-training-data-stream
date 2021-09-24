@@ -1,6 +1,8 @@
 import numpy as np
 import pandas as pd
 
+from collections import Counter
+
 def normalize(X):
     """
     Normaliza os atributos em X
@@ -34,3 +36,17 @@ def normalize(X):
 
     return X_norm, mu, sigma
 
+def unlabel(x , frac):
+    return np.array([-1 if np.random.rand() < frac else label for label in x ])
+
+def most_frequent(array, ignore_vals = [-1]):
+    
+    cntr = Counter(array)
+    
+    try:
+        for del_key in ignore_vals:
+            del cntr[del_key]
+    except:
+        pass
+
+    return cntr.most_common(1)[0][0]
