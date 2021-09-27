@@ -7,8 +7,9 @@ from utils import normalize
 from utils import most_frequent
 
 import numpy as np
+import pandas as pd
 
-class LEC:
+class Lec:
     """Labelling by Ensemble of clusters
 
     Args:
@@ -37,12 +38,11 @@ class LEC:
     """
     
     def __init__(self, y_r, Q, Di):
-        self.y_r = y_r #rótulos da classe Di
+        self.y_r = y_r.copy() #rótulos da classe Di
         self.Di = Di #chunkfor clustering
         self.Q = Q # number of clusters
         
-    @staticmethod
-    def kmeans_clustering(Di, Q):
+    def kmeans_clustering(self, Di, Q):
         '''Function to do a KMeans clustering defininf a chunk of data and a
         number of clusters'''
 
@@ -82,8 +82,9 @@ class LEC:
         
         return cluster_idx, cluster_label
 
-    def unsup_prediction(self, Q, Di, y_r):
+    def unsup_prediction(self, Q, Di, target):
 
+        y_r = target.copy()  
         #### Fit do modelo de cluster e salva em C_n 
         CA, pred_cluster = self.kmeans_clustering(Di, Q)
 
@@ -121,12 +122,14 @@ class LEC:
 
         return y_r
 
-    def fit_transform(self, K = 10):
+    def fit_transform(self, K = 10, to_frame=True):
         results = []
         for _ in range(K):
-            results.append(self.unsup_prediction(Q = self.Q,
-                                                 Di =self.Di,
-                                                 y_r = self.y_r))
+            pred_round = self.unsup_prediction(Q = self.Q, Di =self.Di, target = self.y_r)
+            results.append(pred_round)
+
+        if to_frame:
+            results = pd.DataFrame(results).T
 
         return results
 
